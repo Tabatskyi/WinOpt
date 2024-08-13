@@ -75,11 +75,9 @@ powercfg.exe -change -standby-timeout-dc 0
 powercfg.exe -change -hibernate-timeout-ac 0
 powercfg.exe -change -hibernate-timeout-dc 0
 
-<#
 #Вмикаємо старі версії .NET Framework. Для тих хто користується дуже старими застосунками чи іграми
 Write-Host -ForegroundColor DarkMagenta "Enable .NET Framework"
 Enable-WindowsOptionalFeature -Online -FeatureName NetFx3 -All
-#>
 
 #Вимкнення NBT-NS
 #NBT-NS є старою, але все ще корисною технологією для розв'язання імен у локальних мережах, особливо для забезпечення сумісності з застарілими системами. 
@@ -112,6 +110,7 @@ net accounts /lockoutwindow:30
 
 ##########Прості доповнення##########
 
+<#
 #Якщо у вас досить потужний процесор та швидкий SSD, то є сенс прибрати затримку при завантаженні системи, щоб все, що мало завантажитись у пам'ять при автозавантаженні робило це одночасно.
 #Це робить трохи довшим запуск системи та створює більше навантаження при запуску
 #Якщо ви побачите робочий стіл, значить ви вже маєте повністю готову до роботи систему, нічого у фоні не підвантажується.
@@ -195,12 +194,12 @@ $shortcut.Save()
 # Виведення повідомлення про успішне завершення
  Write-Host  -ForegroundColor DarkMagenta "Mova успішно завантажено та додано до автозавантаження."
 
-
+#>
 #Застереження про страшні червоні помилки, що можуть бути далі
 Write-Warning "Помилки на цьому етапі можуть бути з двох причин `n1 Сервіс вже і так в ручному режимі `n2 Пакунок AppX не встановлено"
 Start-Sleep 15
 
-    Write-Host  -ForegroundColor DarkMagenta "Запускаємо O&O Shutup, щоб вимкнути телеметрію, Copilot, Recall"
+Write-Host  -ForegroundColor DarkMagenta "Запускаємо O&O Shutup, щоб вимкнути телеметрію, Copilot, Recall"
 #Попереду одне із моїх дивних рішень. Щоб не завантажувати файл конфігурації телеметрії для застосунка O&O Shutup, я просто його зчитаю прямо з цього файла та запишу у окремий файл. Таким чином ми викличемо вимкнення телеметрії завантаживши лише O&O Shutup. І файл і O&O Shutup видаляться після того, як робота буде виконана.
 $configText = @"
 P001	+	# Disable sharing of handwriting data (Category: Privacy)
@@ -487,7 +486,7 @@ $configText | Out-File -FilePath $configFilePath -Encoding UTF8
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
     
 	# Цю частину лишаю закоментованою (значить ця частина скрипта не працюватиме), бо вона ВИмикає відслідковування локації ПК. Дуже потрібна штука в мапах тощо. Також закоментував скрипт, що вимикає звітування про помилки Windows. Код залишаю, якщо комусь треба це вимикати
-	<#
+	
     Write-Host  -ForegroundColor DarkMagenta "Вимикаємо відстежування локації.."
     If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location")) {
         New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Force | Out-Null
@@ -518,7 +517,7 @@ $configText | Out-File -FilePath $configFilePath -Encoding UTF8
     Write-Host  -ForegroundColor DarkMagenta "Disabling Error reporting..."
     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
     Disable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting" | Out-Null
-	#>
+	
 	
     Write-Host  -ForegroundColor DarkMagenta "Дозволяємо Windows Update P2P тільки всередині локальної мережі..."
     If (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
@@ -539,7 +538,7 @@ $configText | Out-File -FilePath $configFilePath -Encoding UTF8
     Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
     Set-Service "dmwappushservice" -StartupType Disabled
 	#>
-#Починаючи з Windows 10 версії 1803, Microsoft припинила підтримку функції домашніх груп.Мати цей сервіс необхідно лише якщо обмінюєтесь файлами чи принтерами всередині мережі зі старими версіями ОС Windows.
+#Починаючи з Windows 10 версії 1803, Microsoft припинила підтримку функції домашніх груп. Мати цей сервіс необхідно лише якщо обмінюєтесь файлами чи принтерами всередині мережі зі старими версіями ОС Windows.
     Write-Host  -ForegroundColor DarkMagenta "Зупиняємо та вимикаємо сервіс домашніх груп"
     Stop-Service "HomeGroupListener" -WarningAction SilentlyContinue
     Set-Service "HomeGroupListener" -StartupType Disabled
@@ -594,7 +593,7 @@ Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer
     Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -ErrorAction SilentlyContinue
 
 	#Зазвичай параметр IRPStackSize встановлюється для збільшення стеку IRP в системі, що дозволяє краще управляти мережевими операціями і зменшити можливість виникнення помилок, пов'язаних з перевищенням розміру стеку. Це особливо важливо для великих мережевих середовищ або в умовах високого навантаження на сервер.
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
+	#Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
 
 #Є відчуття ностальгії? Можемо встановити Windows Media Player
     <# 
@@ -643,7 +642,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
 	
     #"dmwappushservice"                            # (Device Management Wireless Application Protocol (WAP) Push message Routing Service) — це служба в операційній системі Windows, яка відповідає за обробку WAP Push повідомлень.Потрібна для обробки повідомлень автоматичних налаштувань інтернету, коли підключаєш модем. Але її вимкнення може понести додаткові проблеми. Нехай собі працює.
 	
-    #"lfsvc"                                       # Geolocation Service. Вимикати геолокацію - це не зручно. Але якщо прямо сильно шифруєшся, то вимикай. Але по IP все одно зможуть вичислити, якщо що.
+    "lfsvc"                                       # Geolocation Service. Вимикати геолокацію - це не зручно. Але якщо прямо сильно шифруєшся, то вимикай. Але по IP все одно зможуть вичислити, якщо що.
 	
     "MapsBroker"                                   # Downloaded Maps Manager. Загалом потрібна тільки якщо використовуєш застосунки із завантаженими мапами на систему, щоб накладати на них поточну геолокацію. Для домашнього ПК можна вимкнути.
     #"NetTcpPortSharing"                           # Net.Tcp Port Sharing Service є важливим компонентом для забезпечення спільного використання TCP-портів декількома службами в операційній системі Windows. Він сприяє ефективному використанню мережевих ресурсів і інтеграції додатків, що використовують Windows Communication Foundation. Вимикаючи збільшимо безпеку системи, бо для кожного з'єднання буде відкриватись окремий порт. Проте збільшимо навантаження на мережу.
@@ -664,14 +663,14 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
 	
     #"wscsvc"                                      # Windows Security Center Service - служба, що моніторить стан усіх безпекових застосунків та сповіщая, якщо щось не так.
 	
-    "WSearch"                                      # Windows Search. Служба, що відповідає за індексування та пошук в системі Windows. Працює хиленько, можна вимкнути та використовувати пошуковик по типу Everything
+    #"WSearch"                                      # Windows Search. Служба, що відповідає за індексування та пошук в системі Windows. Працює хиленько, можна вимкнути та використовувати пошуковик по типу Everything
 	
 	#Служби Xbox необхідні для роботи ігор від Microsoft та деяких інших ігор. Якщо не граєте в ігри, то можна вимкнути наступні 5 сервісів.
-    #"XblAuthManager"                               # Xbox Live Auth Manager
-    #"XblGameSave"                                  # Xbox Live Game Save Service
-    #"XboxNetApiSvc"                                # Xbox Live Networking Service
-    #"XboxGipSvc"                                   # Xbox Accessory Management Service
-	#"CaptureService_48486de"                       #Служба, що потрібна для роботи Windows.Graphics.Capture API, який є частиною Xbox GameBar.  
+    "XblAuthManager"                               # Xbox Live Auth Manager
+    "XblGameSave"                                  # Xbox Live Game Save Service
+    "XboxNetApiSvc"                                # Xbox Live Networking Service
+    "XboxGipSvc"                                   # Xbox Accessory Management Service
+	"CaptureService_48486de"                       #Служба, що потрібна для роботи Windows.Graphics.Capture API, який є частиною Xbox GameBar.  
 	
 	"BcastDVRUserService_48486de"					#використовується для забезпечення функцій трансляції та запису ігрового процесу. Це корисно для геймерів, які хочуть транслювати свої ігри на платформах для стримінгу або записувати їх для подальшого перегляду і редагування. Є сенс вимикати, якщо користуєтесь сторонніми засобами.
 	
@@ -685,9 +684,9 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
 	
     "fhsvc"                                        #Вимкнути службу історії факсів. Давно не зустрічав факсів. Можна вимикати разом із попередньою службою.
 	
-    #"gupdate"                                      #вимкнути оновлення всіх застосунків від Google (не рекомендується, якщо активно користуєшся сервісами від Google)
+    "gupdate"                                      #вимкнути оновлення всіх застосунків від Google (не рекомендується, якщо активно користуєшся сервісами від Google)
 	
-    #"gupdatem"                                     #Вимкнути ще один сервіс оновлення Google
+    "gupdatem"                                     #Вимкнути ще один сервіс оновлення Google
 	
     #"stisvc"                                       #Вимикає Windows Image Acquisition (WIA), це сервіс, що впливає на взаємодію зі сканером чи камерою (будь-яким пристроєм), що передають зображення у Windows напряму. Якщо таких пристроїв немає, сервіс можна вимкнути.
 	
@@ -695,9 +694,9 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
 	
     #"MSDTC"                                       # Distributed Transaction Coordinator - не рекомендую вимикати службу. Хоч вона здебільшого створювалася для координації розподілених транзакцій на серверних системах, проте також допомагає зберігати файли цілісними при копіюванні чи переміщенні.
 	
-    #"WpcMonSvc"                                    #Служба батьківського контролю на ПК. Якщо не використовуєте батьківський контроль для дітей, то і служба вам не потрібна.
+    "WpcMonSvc"                                    #Служба батьківського контролю на ПК. Якщо не використовуєте батьківський контроль для дітей, то і служба вам не потрібна.
 	
-    #"PhoneSvc"                                     #Вимикаючи Phone Service ви вимкнете можливості телефонії та пересилання SMS на комп'ютері за допомогою підключених пристоїв (саме через мобільні мережі). Якщо ви не телефонуєте з комп'ютера через мобільні мережі, службу можна вимкнути.
+    "PhoneSvc"                                     #Вимикаючи Phone Service ви вимкнете можливості телефонії та пересилання SMS на комп'ютері за допомогою підключених пристоїв (саме через мобільні мережі). Якщо ви не телефонуєте з комп'ютера через мобільні мережі, службу можна вимкнути.
 	
     #"PrintNotify"                                  #служба Windows, яка відповідає за оповіщення користувачів про стан друку. Вона забезпечує функціональність повідомлень про друк, таких як спливаючі повідомлення про завдання друку, стан друку, помилки тощо. Якщо не користуєшся принтером, то і службу можна вимкнути.
 	
@@ -709,11 +708,11 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
 	
     #"seclogon"                                     #Вимикає інші облікові записи та повторний вхід. Якщо плануєш мати лише один обліковий запис на ПК, службу можна вимкнути.
 	
-    #"SysMain"                                      #Найдивніший вчинок, який можна зробити - це вимкнути Sysmain, він же SuperFetch, що кешує файли та застосунки для прискорення системи. Єдиний сценарій, де можна вимкнути, це коли 4 та менше Гб ОЗП та система стоїть на HDD. 
+    "SysMain"                                      #Найдивніший вчинок, який можна зробити - це вимкнути Sysmain, він же SuperFetch, що кешує файли та застосунки для прискорення системи. Єдиний сценарій, де можна вимкнути, це коли 4 та менше Гб ОЗП та система стоїть на HDD. 
 	
     #"lmhosts"                                      #Вимикаємо помічника для застарілої технології TCP/IP NetBIOS. Якщо у вашій мережі немає пристроїв на старих версіях ОС (нижче Windows 10), то службу можна і треба вимикати заради безпеки. 
 	
-    #"wisvc"                                        #Вимикає Windows Insider program. Програма тестування нових версій Windows до їх релізу не буде доступна. 
+    "wisvc"                                        #Вимикає Windows Insider program. Програма тестування нових версій Windows до їх релізу не буде доступна. 
 	
     #"FontCache"                                    #(Windows Font Cache Service)є важливою частиною системи Windows для забезпечення ефективності використання шрифтів у різноманітних програмах і інтерфейсі системи. Вона сприяє збереженню ресурсів комп'ютера та покращує загальну продуктивність шляхом оптимізації роботи з шрифтами.Нуль сенсу вимикати.
 	
@@ -729,14 +728,14 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
 	
     "EntAppSvc"                                     #Служба для корпоративного керування застосунками. На домашньому ПК їй робити нічого.
 	
-    #"BthAvctpSvc"                                   #служба, яка забезпечує підтримку аудіо- та відеопрофілів Bluetooth, зокрема, профілів Advanced Audio Distribution Profile (A2DP) і Audio/Video Remote Control Profile (AVRCP). Якщо використовуєте Bluetooth-пристрої для аудіо, вимикати не потрібно.
+    "BthAvctpSvc"                                   #служба, яка забезпечує підтримку аудіо- та відеопрофілів Bluetooth, зокрема, профілів Advanced Audio Distribution Profile (A2DP) і Audio/Video Remote Control Profile (AVRCP). Якщо використовуєте Bluetooth-пристрої для аудіо, вимикати не потрібно.
 	
     #"FrameServer"                                   #служба Windows Camera Frame Server дає змогу багатьом застосункам використовувати камеру одночасно. Якщо вимкнути службу, то при запиті від іншого застосунка писатиме, що камера зайнята.
 	
-    #"BthAvctpSvc"                                   #AVCTP сервіс відповідає за підтримку аудіо- і відеопрофілів через Bluetooth, зокрема профілів, які використовують Audio/Video Control Transport Protocol (AVCTP).Якщо користуєтесь Bluetooth аудіо вимикати не треба.
+    "BthAvctpSvc"                                   #AVCTP сервіс відповідає за підтримку аудіо- і відеопрофілів через Bluetooth, зокрема профілів, які використовують Audio/Video Control Transport Protocol (AVCTP).Якщо користуєтесь Bluetooth аудіо вимикати не треба.
 	
     "BDESVC"                                        #Вимкнути bitlocker. Це безпековий засіб для шифрування даних на ПК. Робить неможливим доступ до даних при викраденні ком'ютера чи диска. Можна вимикати тільки якщо до цього нічого ним не шифрували.Якщо працює, трохи знижує швидкодію. Має сенс вимкнути, якщо вам не потрібна безпека із шифруванням файлів.
-    #"iphlpsvc"                                      #Вимкнути ipv6. Хоч більшість мереж працюють на базі протоколу ipv4, вимкнення цієї служби ніяк не вплине на безпеку чи продуктивність. Нехай собі буде увімкнена.     
+    "iphlpsvc"                                      #Вимкнути ipv6. Хоч більшість мереж працюють на базі протоколу ipv4, вимкнення цієї служби ніяк не вплине на безпеку чи продуктивність. Нехай собі буде увімкнена.     
 	
 	#Три сервіси оновлення Edge. Якщо не користуєтесь Edge, є сенс вимкнути.
     #"edgeupdate"                                    
@@ -755,17 +754,17 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
 	
     #"cbdhsvc_48486de"                               #Clipboard User Service - служба буферу обміну. Якщо вимкнеш копіювання та вставка не працюватимуть. Вимикати рекомендується тільки дуже дивним людям.
 	
-    #"BluetoothUserService_48486de"                  #вимикає BluetoothUserService_48486de сервіс, що потрібен для функцінування Bluetooth. Користуєшся BlueTooth - не чіпай.
+    "BluetoothUserService_48486de"                  #вимикає BluetoothUserService_48486de сервіс, що потрібен для функцінування Bluetooth. Користуєшся BlueTooth - не чіпай.
 	
     #"WpnService"                                    #Вимикає WpnService (служба повідомлень Windows). Всі сповіщення перестануть працювати.
 	
     #"StorSvc"                                       #сервіс для розпізнавання зовнішніх накопичувачів (флешок, жорстких дисків). Якщо вимкнеш - розпізнаватись не будуть. Ідеально для параноїків.
 	
-    #"RtkBtManServ"                                  #Вимикає Realtek Bluetooth Device Manager Service. Це сервіс потрібен для роботи Bluetooth пристроїв від Realtek.
+    "RtkBtManServ"                                  #Вимикає Realtek Bluetooth Device Manager Service. Це сервіс потрібен для роботи Bluetooth пристроїв від Realtek.
 	
     #"QWAVE"                                         #сервіс Quality Windows Audio Video Experience допомагає покращити якість потокового мультимедіа, знижуючи затримки і втрати пакетів, і оптимізуючи використання мережевих ресурсів.Немає сенсу вимикати.
 	
-     #Сервіси від HP. Якщо не користуєшся ними на ПК від HP, можна вимикати.
+    #Сервіси від HP. Якщо не користуєшся ними на ПК від HP, можна вимикати.
     #"HPAppHelperCap"
     #"HPDiagsCap"
     #"HPNetworkCap"
@@ -773,14 +772,14 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies
     #"HpTouchpointAnalyticsService"
     
 	#Сервіси віртуалізації hyper-v. Потрібні для адекватної роботи віртуальних машин. Якщо не користуєшся віртуальними машинами, можна вимкнути, це трошки (зовсім) додасть швидкодії.
-    # "HvHost"                          
-    #"vmickvpexchange"
-    #"vmicguestinterface"
-    #"vmicshutdown"
-    #"vmicheartbeat"
-    #"vmicvmsession"
-    #"vmicrdv"
-    #"vmictimesync" 
+    "HvHost"                          
+    "vmickvpexchange"
+    "vmicguestinterface"
+    "vmicshutdown"
+    "vmicheartbeat"
+    "vmicvmsession"
+    "vmicrdv"
+    "vmictimesync" 
 	
     # Цей сервіс просто не чіпай ніколи. Він допомагає забезпечити безпеку системи, аналізуючи мережевий трафік та виявляючи потенційно небезпечні дії. Може миттєво перетворити твою систему в картоплину.
     #"WdNisSvc"
@@ -889,9 +888,9 @@ $Bloatware = @(
     "Microsoft.BingHealthAndFitness"
     "Microsoft.BingTravel"
     "Microsoft.MinecraftUWP"
-    #"Microsoft.GamingServices"
+    "Microsoft.GamingServices"
     "Microsoft.WindowsReadingList"
-    #"Microsoft.GetHelp"
+    "Microsoft.GetHelp"
     "Microsoft.Getstarted"
     "Microsoft.Messaging"
     "Microsoft.Microsoft3DViewer"
@@ -913,16 +912,16 @@ $Bloatware = @(
     "Microsoft.WindowsMaps"
     "Microsoft.WindowsPhone"
     "Microsoft.WindowsSoundRecorder"
-    #"Microsoft.XboxApp"
+    "Microsoft.XboxApp"
     "Microsoft.ConnectivityStore"
     "Microsoft.CommsPhone"
     "Microsoft.ScreenSketch"
-    #"Microsoft.Xbox.TCUI"
-    #"Microsoft.XboxGameOverlay"
-    #"Microsoft.XboxGameCallableUI"
+    "Microsoft.Xbox.TCUI"
+    "Microsoft.XboxGameOverlay"
+    "Microsoft.XboxGameCallableUI"
     "Microsoft.XboxSpeechToTextOverlay"
     "Microsoft.MixedReality.Portal"
-    #"Microsoft.XboxIdentityProvider"
+    "Microsoft.XboxIdentityProvider"
     "Microsoft.ZuneMusic"
     "Microsoft.ZuneVideo"
     "Microsoft.YourPhone"
@@ -930,7 +929,7 @@ $Bloatware = @(
     "Microsoft.MicrosoftOfficeHub"
     "Spotify"
     "Disney+"
-    #"Xbox"
+    "Xbox"
     "BytedancePte.Ltd.TikTok"   # TikTok
     "FACEBOOK.317180B0BB486"    # Messenger
     "FACEBOOK.FACEBOOK"         # Facebook
@@ -1019,7 +1018,7 @@ $Bloatware = @(
     #Опціонально: немає сенсу видаляти, але якщо тобі треба з якоїсь причини.
     "*Microsoft.Advertising.Xaml*"
     #"*Microsoft.MSPaint*"
-    #"*Microsoft.MicrosoftStickyNotes*"
+    "*Microsoft.MicrosoftStickyNotes*"
     #"*Microsoft.Windows.Photos*"
     #"*Microsoft.WindowsCalculator*"
     #"*Microsoft.WindowsStore*"
