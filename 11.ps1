@@ -154,10 +154,10 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 	
 #Встановлюємо Everything плагін для PowerToys, щоб швидко шукати через Run
 	choco install everythingpowertoys -y
-<#
+
 #Встановлюємо медіаплеєр MPV
 	choco install mpv -y
-
+<#
 #Встановлюємо переглядач зображень FastStone
 	choco install fsviewer -y
 	
@@ -166,7 +166,24 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 #>
 #Встановлюємо правильний блокнот Notepad++
 	choco install notepadplusplus.install -y
-	
+
+	choco install git -y
+
+    choco install vscode -y
+
+    choco install cmake -y
+
+    choco install python -y
+
+    choco install docker-desktop -y
+    choco install kubernetes-cli -y
+    choco install kubernetes-kompose -y
+    choco install kubernetes-helm -y
+    choco install minikube -y
+
+    choco install speedtest -y
+
+    choco install terraform -y
 	
 # Встановлення Mova прямо у автозавантаження
 $exeUrl = "https://github.com/Z-beam/MovaFlag/releases/download/1.0.2/Mova.exe"
