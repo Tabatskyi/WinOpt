@@ -86,7 +86,7 @@ Enable-WindowsOptionalFeature -Online -FeatureName NetFx3 -All
 #Якщо у вашій мережі немає застарілих систем, то задля безпеки NBT-NS краще вимкнути. 
 Write-Host -ForegroundColor DarkMagenta "Вимкнення NBT-NS"
 $regkey = "HKLM:SYSTEM\CurrentControlSet\services\NetBT\Parameters\Interfaces"
-Get-ChildItem $regkey |foreach { Set-ItemProperty -Path "$regkey\$($_.pschildname)" -Name NetbiosOptions -Value 2 -Verbose}
+Get-ChildItem $regkey |ForEach-Object { Set-ItemProperty -Path "$regkey\$($_.pschildname)" -Name NetbiosOptions -Value 2 -Verbose}
 
 #Увімкнення SMB підпису як 'always'. Збільшує витрати на обробку даних всередині мережі, та не дає змоги під'єднатись старим пристроям, які не підтримують підпис SMB.
 #З іншого боку включення SMB підпису з параметром "always" забезпечує вищий рівень безпеки шляхом захисту від атак типу MITM і забезпечення цілісності даних.
@@ -450,7 +450,7 @@ If (!(Test-Path "C:\Support\Scripts")) {
 $configText | Out-File -FilePath $configFilePath -Encoding UTF8
 #Завантаження та запуск O&O Shutup
     Invoke-WebRequest -Uri "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -outFile "C:\Support\Scripts\OOSU10.exe"
-    cd C:\Support\Scripts
+    Set-Location C:\Support\Scripts
     ./OOSU10.exe ooshutup10.cfg /quiet
 
     Write-Host  -ForegroundColor DarkMagenta "Вимикаємо телеметрію в планувальнику"
