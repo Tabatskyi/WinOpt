@@ -144,29 +144,33 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
     choco install superf4 -y
 	
 #Встановлюємо меню правої кнопки миші від Nilesoft-Shell
-	choco install nilesoft-shell -y
+    choco install nilesoft-shell -y
 	
 #Встановлюємо Power Toys	
-	choco install powertoys -y
+    choco install powertoys -y
 	
 #Встановлюємо швидкий переглядач файлів QuickLook	
-	choco install quicklook -y
+    choco install quicklook -y
 	
 #Встановлюємо Everything плагін для PowerToys, щоб швидко шукати через Run
-	choco install everythingpowertoys -y
-<#
+    choco install everythingpowertoys -y
+
 #Встановлюємо медіаплеєр MPV
-	choco install mpv -y
+     choco install mpv -y
 
 #Встановлюємо переглядач зображень FastStone
-	choco install fsviewer -y
-	
+     choco install fsviewer -y
+<#	
 #Встановлюємо видяляч програм BCU
-	choco install bulk-crap-uninstaller -y
+     choco install bulk-crap-uninstaller -y
 #>
 #Встановлюємо правильний блокнот Notepad++
-	choco install notepadplusplus.install -y
-	
+     choco install notepadplusplus.install -y
+
+     choco install python -y
+     choco install speedtest -y
+     choco install fastfetch -y
+     choco install vlc -y
 	
 # Встановлення Mova прямо у автозавантаження
 $exeUrl = "https://github.com/Z-beam/MovaFlag/releases/download/1.0.2/Mova.exe"
