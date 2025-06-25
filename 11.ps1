@@ -1,4 +1,4 @@
-﻿<#
+<#
 Цей скрипт не рекомендується до виконання нікому. 
 Будь-що ви робите на власний ризик. Будь-які зміни в системі можуть викликати проблеми.
 
@@ -170,9 +170,14 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
      choco install python -y
      choco install speedtest -y
      choco install fastfetch -y
-     choco install vlc -y
+
+     choco install winscp putty gimp kdenlive hxd wiztree nmap wireshark qbittorrent hwinfo -a
+     choco install tor-browser -y
+     choco install vscode -y
+     choco install anydesk -y
+     choco install rufus -y
 	
-# Встановлення Mova прямо у автозавантаження
+<# Встановлення Mova прямо у автозавантаження
 $exeUrl = "https://github.com/Z-beam/MovaFlag/releases/download/1.0.2/Mova.exe"
 $downloadPath = "$env:USERPROFILE\Mova\Mova.exe"
 
@@ -197,7 +202,7 @@ $shortcut.Save()
 
 # Виведення повідомлення про успішне завершення
 Write-Host  -ForegroundColor DarkMagenta "Mova успішно завантажено та додано до автозавантаження."
-
+#>
 
 #Застереження про страшні червоні помилки, що можуть бути далі
 Write-Warning "Помилки на цьому етапі можуть бути з двох причин `n1 Сервіс вже і так в ручному режимі `n2 Пакунок AppX не встановлено"
